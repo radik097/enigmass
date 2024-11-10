@@ -5,10 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Proxy Shop</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <!-- Подключаем Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        /* Тёмная тема и стили для минималистичного вида */
+        /* Dark theme and minimalist styling */
         body {
             background-color: #121212;
             color: #ffffff;
@@ -16,10 +15,10 @@
             text-align: center;
             padding-top: 30px;
         }
-        h1, p {
+        h1, p, h3 {
             color: #ffffff;
         }
-        .btn-custom {
+        .btn-custom, .btn-cart, .btn-payment {
             background-color: #333333;
             color: #ffffff;
             border-radius: 20px;
@@ -27,36 +26,91 @@
             width: 80%;
             transition: background-color 0.3s ease;
         }
-        .btn-custom:hover {
+        .btn-custom:hover, .btn-cart:hover, .btn-payment:hover {
             background-color: #444444;
+        }
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 15px;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <h1 class="mb-4">Proxy Shop</h1>
-        <p>Choose your proxy configuration:</p>
+        <p>Select and add products to your cart:</p>
 
-        <!-- Выбор по месяцам -->
+        <!-- Product categories -->
         <h3 class="my-4">By Month</h3>
-        <button class="btn btn-custom" onclick="sendData('1 month - 404 RUB')">1 Month - 404 RUB</button>
-        <button class="btn btn-custom" onclick="sendData('2 months - 808 RUB')">2 Months - 808 RUB</button>
+        <button class="btn btn-custom" onclick="addToCart('1 Month', 404)">1 Month - 404 RUB</button>
+        <button class="btn btn-custom" onclick="addToCart('2 Months', 808)">2 Months - 808 RUB</button>
 
-        <!-- Выбор по часам -->
         <h3 class="my-4">By Hours</h3>
-        <button class="btn btn-custom" onclick="sendData('12 hours - 12 RUB')">12 Hours - 12 RUB</button>
-        <button class="btn btn-custom" onclick="sendData('24 hours - 20 RUB')">24 Hours - 20 RUB</button>
+        <button class="btn btn-custom" onclick="addToCart('12 Hours', 12)">12 Hours - 12 RUB</button>
+        <button class="btn btn-custom" onclick="addToCart('24 Hours', 20)">24 Hours - 20 RUB</button>
 
-        <!-- Выбор по трафику -->
         <h3 class="my-4">By Traffic</h3>
-        <button class="btn btn-custom" onclick="sendData('1 GB - 20 RUB')">1 GB - 20 RUB</button>
-        <button class="btn btn-custom" onclick="sendData('5 GB - 90 RUB')">5 GB - 90 RUB</button>
+        <button class="btn btn-custom" onclick="addToCart('1 GB', 20)">1 GB - 20 RUB</button>
+        <button class="btn btn-custom" onclick="addToCart('5 GB', 90)">5 GB - 90 RUB</button>
+
+        <!-- Cart and payment buttons -->
+        <h3 class="my-4">Cart</h3>
+        <div id="cart" class="mb-4"></div>
+        <button class="btn btn-cart" onclick="clearCart()">Clear Cart</button>
+        <button class="btn btn-payment" onclick="payWithStars()">Pay with Stars</button>
+        <button class="btn btn-payment" onclick="payWithCrypto()">Pay with Crypto</button>
     </div>
 
-    <!-- JavaScript для взаимодействия с Telegram Web App API -->
+    <!-- JavaScript for managing cart and payment -->
     <script>
-        function sendData(option) {
-            Telegram.WebApp.sendData(JSON.stringify({ option: option }));
+        let cart = [];
+        
+        // Add item to cart
+        function addToCart(item, price) {
+            cart.push({ item, price });
+            updateCartDisplay();
+        }
+
+        // Update cart display
+        function updateCartDisplay() {
+            const cartDiv = document.getElementById("cart");
+            cartDiv.innerHTML = "";
+            let total = 0;
+
+            cart.forEach((entry, index) => {
+                total += entry.price;
+                const div = document.createElement("div");
+                div.classList.add("cart-item");
+                div.innerHTML = `${entry.item} - ${entry.price} RUB <button onclick="removeFromCart(${index})">Remove</button>`;
+                cartDiv.appendChild(div);
+            });
+
+            const totalDiv = document.createElement("div");
+            totalDiv.classList.add("cart-item");
+            totalDiv.innerHTML = `<strong>Total: ${total} RUB</strong>`;
+            cartDiv.appendChild(totalDiv);
+        }
+
+        // Remove item from cart
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            updateCartDisplay();
+        }
+
+        // Clear cart
+        function clearCart() {
+            cart = [];
+            updateCartDisplay();
+        }
+
+        // Payment options
+        function payWithStars() {
+            Telegram.WebApp.sendData(JSON.stringify({ type: "pay_stars", cart }));
+        }
+
+        function payWithCrypto() {
+            Telegram.WebApp.sendData(JSON.stringify({ type: "pay_crypto", cart }));
         }
     </script>
 </body>
