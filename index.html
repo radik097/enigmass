@@ -1,0 +1,33 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proxy Shop</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+    <h1>Proxy Shop</h1>
+    <p>Choose your proxy configuration:</p>
+    
+    <h3>By Month</h3>
+    <button onclick="sendData('1 month - 404 RUB')">1 Month - 404 RUB</button>
+    <button onclick="sendData('2 months - 808 RUB')">2 Months - 808 RUB</button>
+
+    <h3>By Hours</h3>
+    <button onclick="sendData('12 hours - 12 RUB')">12 Hours - 12 RUB</button>
+    <button onclick="sendData('24 hours - 20 RUB')">24 Hours - 20 RUB</button>
+
+    <h3>By Traffic</h3>
+    <button onclick="sendData('1 GB - 20 RUB')">1 GB - 20 RUB</button>
+    <button onclick="sendData('5 GB - 90 RUB')">5 GB - 90 RUB</button>
+
+    <script>
+        function sendData(option) {
+            // Отправляем данные в Telegram бота
+            Telegram.WebApp.sendData(JSON.stringify({ option: option }));
+        }
+    </script>
+</body>
+</html>
