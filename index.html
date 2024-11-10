@@ -7,32 +7,33 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        /* Dark theme and minimalist styling */
-        body { 
-            background-color: #121212;
-            color: #ffffff;
+        /* Настройки динамической темы и адаптация для тёмной и светлой тем */
+        body {
+            background-color: var(--tg-theme-bg-color, #121212);
+            color: var(--tg-theme-text-color, #ffffff);
             font-family: Arial, sans-serif;
             text-align: center;
             padding-top: 30px;
         }
         h1, p, h3 {
-            color: #ffffff;
+            color: var(--tg-theme-text-color, #ffffff);
         }
         .btn-custom, .btn-cart, .btn-payment {
-            background-color: #333333;
-            color: #ffffff;
+            background-color: var(--tg-theme-button-color, #333333);
+            color: var(--tg-theme-button-text-color, #ffffff);
             border-radius: 20px;
             margin: 10px;
             width: 80%;
             transition: background-color 0.3s ease;
         }
         .btn-custom:hover, .btn-cart:hover, .btn-payment:hover {
-            background-color: #444444;
+            background-color: var(--tg-theme-link-color, #444444);
         }
         .cart-item {
             display: flex;
             justify-content: space-between;
             padding: 5px 15px;
+            border-bottom: 1px solid var(--tg-theme-hint-color, #555555);
         }
     </style>
 </head>
@@ -62,17 +63,25 @@
         <button class="btn btn-payment" onclick="payWithCrypto()">Pay with Crypto</button>
     </div>
 
-    <!-- JavaScript for managing cart and payment -->
+    <!-- JavaScript для управления корзиной и оплаты -->
     <script>
+        // Синхронизация с цветовой схемой Telegram
+        const tg = window.Telegram.WebApp;
+        tg.ready();
+        tg.expand();
+        document.body.style.backgroundColor = tg.themeParams.bg_color || "#121212";
+        document.body.style.color = tg.themeParams.text_color || "#ffffff";
+
+        // Корзина
         let cart = [];
-        
-        // Add item to cart
+
+        // Добавление товара в корзину
         function addToCart(item, price) {
             cart.push({ item, price });
             updateCartDisplay();
         }
 
-        // Update cart display
+        // Обновление отображения корзины
         function updateCartDisplay() {
             const cartDiv = document.getElementById("cart");
             cartDiv.innerHTML = "";
@@ -92,26 +101,38 @@
             cartDiv.appendChild(totalDiv);
         }
 
-        // Remove item from cart
+        // Удаление товара из корзины
         function removeFromCart(index) {
             cart.splice(index, 1);
             updateCartDisplay();
         }
 
-        // Clear cart
+        // Очистка корзины
         function clearCart() {
             cart = [];
             updateCartDisplay();
         }
 
-        // Payment options
+        // Оплата звездами Telegram
         function payWithStars() {
-            Telegram.WebApp.sendData(JSON.stringify({ type: "pay_stars", cart }));
+            tg.sendData(JSON.stringify({ type: "pay_stars", cart }));
         }
 
+        // Оплата криптовалютой
         function payWithCrypto() {
-            Telegram.WebApp.sendData(JSON.stringify({ type: "pay_crypto", cart }));
+            tg.sendData(JSON.stringify({ type: "pay_crypto", cart }));
         }
+
+        // Обновление стиля при смене темы в Telegram
+        tg.onEvent("themeChanged", function() {
+            document.body.style.backgroundColor = tg.themeParams.bg_color || "#121212";
+            document.body.style.color = tg.themeParams.text_color || "#ffffff";
+            const buttons = document.querySelectorAll(".btn-custom, .btn-cart, .btn-payment");
+            buttons.forEach(button => {
+                button.style.backgroundColor = tg.themeParams.button_color || "#333333";
+                button.style.color = tg.themeParams.button_text_color || "#ffffff";
+            });
+        });
     </script>
 </body>
 </html>
